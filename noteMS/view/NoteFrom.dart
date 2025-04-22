@@ -131,7 +131,7 @@ class _NoteFormState extends State<NoteForm> {
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    elevation: 10,                           // Độ nổi của nút
+                    elevation: 10, // Độ nổi của nút
                   ),
                 ),
               ],
@@ -177,13 +177,13 @@ class _NoteFormState extends State<NoteForm> {
                     Icon(Icons.save, size: 24),
                     SizedBox(width: 8), // 👈 khoảng cách giữa icon và text
                     Text(
-                      'Lưu Ghi chú',
+                      isEditing ? 'Sửa Ghi chú' : 'Thêm Ghi chú',  // Đúng cấu trúc
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),

@@ -53,6 +53,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       appBar: AppBar(
         title: Text('Ghi chú của bạn'),
         centerTitle: true,
+        backgroundColor: Colors.greenAccent,
         actions: [
           IconButton(icon: Icon(Icons.refresh), onPressed: _refreshNotes),
           IconButton(
@@ -69,7 +70,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
               controller: searchController,
               decoration: InputDecoration(
                 labelText: 'Tìm kiếm ghi chú...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: Icon(Icons.search_rounded),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -175,68 +176,123 @@ class _NoteListScreenState extends State<NoteListScreen> {
   // Hiển thị dạng lưới
   Widget _buildGridView(List<Note> notes) {
     return GridView.builder(
-      padding: const EdgeInsets.all(8),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.9,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 0.72,
       ),
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return GestureDetector(
-          onTap: () async {
-            final updated = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
-            );
-            if (updated == true) _refreshNotes();
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: _getPriorityColor(note.priority),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(note.title, style: TextStyle(fontWeight: FontWeight.bold), maxLines: 1),
-                SizedBox(height: 6),
-                Text(note.content, maxLines: 3, overflow: TextOverflow.ellipsis),
-                Spacer(),
-                Text('Tạo: ${formatter.format(DateTime.parse(note.createdAt.toString()))}',
-                    style: TextStyle(fontSize: 10, color: Colors.grey[700])),
-                Text('Sửa: ${formatter.format(DateTime.parse(note.modifiedAt.toString()))}',
-                    style: TextStyle(fontSize: 10, color: Colors.grey[700])),
-                // Thêm phần tag vào đây
-                Row(
-                  children: [
-                    Text("Tags: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                    if (note.tags?.isNotEmpty ?? false)
-                      ...note.tags!.map((tag) => Padding(
-                        padding: const EdgeInsets.only(right: 6.0),
-                        child: Chip(
-                          label: Text(tag),
-                          backgroundColor: Colors.blue.shade200,
-                        ),
-                      )).toList()
-                    else
-                      Chip(
-                        label: Text('Không có tags'),
-                        backgroundColor: Colors.grey.shade300,
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 3,
+          color: _getPriorityColor(note.priority),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () async {
+              final updated = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
+              );
+              if (updated == true) _refreshNotes();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Tiêu đề
+                  Text(
+                    note.title,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.8),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 6),
+
+                  // Nội dung chính
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Text(
+                      note.content,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13.8),
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  // Ngày tạo và sửa
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tạo: ${formatter.format(DateTime.parse(note.createdAt.toString()))}',
+                        style: TextStyle(fontSize: 11.5, color: Colors.black87),
                       ),
-                  ],
-                ),
-                Align(alignment: Alignment.bottomRight, child: _buildTrailingButtons(note)),
-              ],
+                      SizedBox(height: 2),
+                      Text(
+                        'Sửa: ${formatter.format(DateTime.parse(note.modifiedAt.toString()))}',
+                        style: TextStyle(fontSize: 11.5, color: Colors.black87),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 8),
+                  // Tags
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      Text("Tags:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.8)),
+                      if (note.tags?.isNotEmpty ?? false)
+                        ...note.tags!.map((tag) => Chip(
+                          label: Text(tag, style: TextStyle(fontSize: 11.2)),
+                          backgroundColor: Colors.blue.shade100,
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        ))
+                      else
+                        Chip(
+                          label: Text('Không có tags', style: TextStyle(fontSize: 11.2)),
+                          backgroundColor: Colors.grey.shade300,
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        ),
+                    ],
+                  ),
+
+                  Spacer(),
+                  // Nút hành động
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, size: 17.5, color: Colors.blueAccent),
+                        onPressed: () async {
+                          final updated = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => NoteForm(note: note)),
+                          );
+                          if (updated == true) _refreshNotes();
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, size: 17.5, color: Colors.redAccent),
+                        onPressed: () => _confirmDelete(note),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
   }
+
 
   // Tạo hai nút chỉnh sửa và xoá
   Widget _buildTrailingButtons(Note note) {
@@ -287,11 +343,11 @@ class _NoteListScreenState extends State<NoteListScreen> {
   Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return Colors.red.shade300;
+        return Colors.green.shade500;
       case 2:
-        return Colors.orange.shade300;
-      case 3:
         return Colors.green.shade300;
+      case 3:
+        return Colors.green.shade100;
       default:
         return Colors.grey.shade300;
     }

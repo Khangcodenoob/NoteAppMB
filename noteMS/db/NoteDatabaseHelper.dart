@@ -120,10 +120,16 @@ class NoteDatabaseHelper {
   }
 
   // searchNotes
-  Future<List<Note>> searchNotes(String query) async {
+  Future<List<Note>> searchNotes(String keyword) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('notes', where: 'title LIKE ?', whereArgs: ['%$query%']);
-    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+    final maps = await db.query(
+      'notes',
+      where: 'title LIKE ? OR content LIKE ? OR tags LIKE ?', // tim kiem theo tieu de , noi dung, va tag
+      whereArgs: ['%$keyword%', '%$keyword%', '%$keyword%'],
+      orderBy: 'priority ASC',
+    );
+
+    return maps.map((e) => Note.fromMap(e)).toList();
   }
 
 }

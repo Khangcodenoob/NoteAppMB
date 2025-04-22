@@ -91,6 +91,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 color: Colors.black,  // Màu chữ nhạt hơn một chút
               ),
             ),
+
             SizedBox(height: 8),
             Text(
               note.content,
@@ -106,20 +107,32 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             Text(
               'Thời gian tạo: ${note.createdAt}',
               style: TextStyle(
-                fontSize: 18,  // Kích thước vừa phải cho thời gian
+                fontSize: 16,  // Kích thước vừa phải cho thời gian
                 color: Colors.orange,  // Màu chữ nhẹ nhàng cho thời gian
               ),
             ),
+
             SizedBox(height: 8),  // Khoảng cách giữa thời gian tạo và thời gian cập nhật
             Text(
               'Thời gian cập nhật: ${note.modifiedAt}',
               style: TextStyle(
-                fontSize: 18,  // Kích thước vừa phải cho thời gian
+                fontSize: 16,  // Kích thước vừa phải cho thời gian
                 color: Colors.orange,  // Màu chữ nhẹ nhàng cho thời gian
               ),
             ),
-            SizedBox(height: 20), // Khoảng cách giữa thời gian và tags
 
+            SizedBox(height: 20), // Khoảng cách giữa thời gian và tags
+            // Mức độ ưu tiên
+            Text(
+              'Mức độ ưu tiên: ${note.priority}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,  // Màu sắc nổi bật cho ưu tiên
+              ),
+            ),
+
+            SizedBox(height: 20), // Khoảng cách giữa ưu tiên và tags
             // Tags nếu có
             if (note.tags!.isNotEmpty) ...[
               Text(
