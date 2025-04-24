@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+//model chính
 class Note {
   int? id;
   String title;
@@ -10,6 +11,7 @@ class Note {
   List<String>? tags;
   String? color;
 
+  // Constructor khởi tạo đối tượng Note
   Note({
     this.id,
     required this.title,
@@ -28,9 +30,11 @@ class Note {
       'title': title,
       'content': content,
       'priority': priority,
-      'createdAt': createdAt.toIso8601String(), // chuẩn ngày giờ quốc tế
+      'createdAt': createdAt.toIso8601String(),
+      // chuẩn ngày giờ quốc tế
       'modifiedAt': modifiedAt.toIso8601String(),
       'tags': tags?.join(','),
+      // Nối list tags thành chuỗi cách nhau bằng dấu phẩy
       'color': color,
     };
   }
@@ -43,13 +47,16 @@ class Note {
     return jsonEncode(toData());
   }
 
-  // Tạo đối tượng Note từ Map (fromMap)
+  // Tạo Note từ Map (khi lấy từ SQLite ra)
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
       title: map['title'],
       content: map['content'],
-      priority: map['priority'] is int ? map['priority'] : int.tryParse(map['priority'].toString()) ?? 3,
+      priority:
+          map['priority'] is int
+              ? map['priority']
+              : int.tryParse(map['priority'].toString()) ?? 3,
       createdAt: DateTime.parse(map['createdAt']),
       modifiedAt: DateTime.parse(map['modifiedAt']),
       tags: map['tags'] is String ? (map['tags'] as String).split(',') : [],
@@ -57,6 +64,8 @@ class Note {
     );
   }
 
+  /*
+  // Tạo Note từ chuỗi JSON
   factory Note.fromJSON(String json) {
     Map<String, dynamic> map = jsonDecode(json);
     return Note(
@@ -70,7 +79,7 @@ class Note {
       color: map['color'] is String ? map['color'] : '#FFFFFF',
     );
   }
-
+  */
 
   // Phương thức copy để tạo bản sao với một số thuộc tính được cập nhật
   Note copyWith({
@@ -94,9 +103,9 @@ class Note {
       color: color ?? this.color,
     );
   }
+
   @override
   String toString() {
-    // TODO: implement toString
     return 'Note(id: $id, title: $title, content: $content, priority: $priority,'
         ' createdAt: $createdAt, modifiedAt: $modifiedAt, tags: $tags, color: $color)';
   }

@@ -4,6 +4,7 @@ import '../db/NoteDatabaseHelper.dart';
 
 class NoteForm extends StatefulWidget {
   final Note? note;
+
   const NoteForm({super.key, this.note});
 
   @override
@@ -21,7 +22,9 @@ class _NoteFormState extends State<NoteForm> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _contentController = TextEditingController(
+      text: widget.note?.content ?? '',
+    );
     _tagInputController = TextEditingController();
     _tags = List.from(widget.note?.tags ?? []);
     _priority = widget.note?.priority ?? 3;
@@ -35,22 +38,61 @@ class _NoteFormState extends State<NoteForm> {
     super.dispose();
   }
 
-  void _addTag() {
-    final tag = _tagInputController.text.trim();
-    if (tag.isNotEmpty && !_tags.contains(tag)) {
-      setState(() {
-        _tags.add(tag);
-        _tagInputController.clear();
-      });
-    }
+  //Hàm kiểm tra tag, nếu đa ton tai thi thong bao cho nguoi dung
+  void _showTagExistsDialog({required String message}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Lỗi!"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("Đã rõ"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
+  //Hàm thêm tags
+  void _addTag() {
+    final tag = _tagInputController.text.trim();
+
+    // Kiểm tra tag trống
+    if (tag.isEmpty) {
+      _showTagExistsDialog(message: "Tag không được để trống.");
+      return;
+    }
+
+    // Giới hạn chỉ cho phép 2 tag
+    if (_tags.length >= 2) {
+      _showTagExistsDialog(message: "Chỉ được thêm tối đa 2 tag.");
+      return;
+    }
+
+    // Kiểm tra nếu tag đã tồn tại
+    if (_tags.contains(tag)) {
+      _showTagExistsDialog(message: "Tag này đã có trong danh sách.");
+      return;
+    }
+
+    setState(() {
+      _tags.add(tag);
+      _tagInputController.clear();
+    });
+  }
+
+  //Hàm xoá tag
   void _removeTag(String tag) {
     setState(() => _tags.remove(tag));
   }
 
   Future<void> _saveNote() async {
-    if (_titleController.text.isNotEmpty && _contentController.text.isNotEmpty) {
+    if (_titleController.text.isNotEmpty &&
+        _contentController.text.isNotEmpty) {
       if (_tags.isEmpty) _tags.add("Không có tags");
       final note = Note(
         id: widget.note?.id,
@@ -88,6 +130,7 @@ class _NoteFormState extends State<NoteForm> {
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   );
 
+  // -------------------Giao dien nguoi dung-------------------
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.note != null;
@@ -125,8 +168,8 @@ class _NoteFormState extends State<NoteForm> {
                   label: Text(
                     "Thêm",
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,  // Làm chữ đậm
-                      fontSize: 16,                 // Thay đổi kích thước chữ nếu cần
+                      fontWeight: FontWeight.bold, // Làm chữ đậm
+                      fontSize: 16, // Thay đổi kích thước chữ nếu cần
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -139,20 +182,26 @@ class _NoteFormState extends State<NoteForm> {
             SizedBox(height: 12),
             Wrap(
               spacing: 8.0,
-              children: _tags
-                  .map((tag) => Chip(
-                label: Text(tag),
-                backgroundColor: Colors.blue.shade100,
-                deleteIcon: Icon(Icons.cancel),
-                onDeleted: () => _removeTag(tag),
-              ))
-                  .toList(),
+              children:
+                  _tags
+                      .map(
+                        (tag) => Chip(
+                          label: Text(tag),
+                          backgroundColor: Colors.blue.shade100,
+                          deleteIcon: Icon(Icons.cancel),
+                          onDeleted: () => _removeTag(tag),
+                        ),
+                      )
+                      .toList(),
             ),
             SizedBox(height: 16),
             DropdownButtonFormField<int>(
               value: _priority,
               onChanged: (value) => setState(() => _priority = value ?? 3),
-              decoration: _inputDecoration('Mức độ ưu tiên', Icon(Icons.priority_high)),
+              decoration: _inputDecoration(
+                'Mức độ ưu tiên',
+                Icon(Icons.priority_high),
+              ),
               items: const [
                 DropdownMenuItem(value: 1, child: Text('Cao')),
                 DropdownMenuItem(value: 2, child: Text('Trung bình')),
@@ -166,24 +215,29 @@ class _NoteFormState extends State<NoteForm> {
                 style: ElevatedButton.styleFrom(
                   elevation: 4,
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                  ),
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   shadowColor: Colors.black.withOpacity(0.2),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min, // 👈 để Row không chiếm hết chiều ngang
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.save, size: 24),
-                    SizedBox(width: 8), // 👈 khoảng cách giữa icon và text
+                    SizedBox(width: 8),
                     Text(
-                      isEditing ? 'Sửa Ghi chú' : 'Thêm Ghi chú',  // Đúng cấu trúc
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                      isEditing ? 'Sửa Ghi chú' : 'Thêm Ghi chú', // Đúng cấu trúc cho nút sửa và nút thêm ghi chú
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

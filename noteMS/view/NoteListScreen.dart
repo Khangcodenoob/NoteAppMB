@@ -46,22 +46,25 @@ class _NoteListScreenState extends State<NoteListScreen> {
       });
     }
   }
-
+  //----------------------------------------------------------------------
+  // Giao diện người dùng
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ghi chú của bạn'),
+        title: Text('Danh sách ghi chú '),
         centerTitle: true,
         backgroundColor: Colors.greenAccent,
         actions: [
-          IconButton(icon: Icon(Icons.refresh), onPressed: _refreshNotes),
+          IconButton(icon: Icon(Icons.refresh_outlined), onPressed: _refreshNotes),
           IconButton(
-            icon: Icon(isGridView ? Icons.view_list : Icons.grid_view),
+            icon: Icon(isGridView ? Icons.view_list_outlined: Icons.grid_view_rounded),
             onPressed: _toggleView,
           ),
+
         ],
       ),
+      //Thanh tìm kiếm
       body: Column(
         children: [
           Padding(
@@ -98,6 +101,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
           )
         ],
       ),
+      // Phần nút add note là dấu +
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
@@ -106,13 +110,13 @@ class _NoteListScreenState extends State<NoteListScreen> {
           );
           if (result == true) _refreshNotes();
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add_sharp),
         backgroundColor: Colors.greenAccent ,
       ),
     );
   }
 
-  // Hiển thị dạng danh sách
+  // Hiển thị dạng danh sách dạng listview
   Widget _buildListView(List<Note> notes) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
@@ -121,7 +125,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       itemBuilder: (context, index) {
         final note = notes[index];
         return Card(
-          color: _getPriorityColor(note.priority),
+          color: getPriorityColor(note.priority),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -131,14 +135,26 @@ class _NoteListScreenState extends State<NoteListScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // nội dung ghi chú
                 SizedBox(height: 4),
                 Text(note.content, maxLines: 2, overflow: TextOverflow.ellipsis),
+
+                // Mức độ ưu tiên
+                SizedBox(height: 4),
+                Text(
+                  'Mức độ ưu tiên: ${getPriorityLabel(note.priority)}',
+                ),
+
+                // Ngày tháng của tạo và sửa ghi chú
                 SizedBox(height: 4),
                 Text('Tạo: ${formatter.format(DateTime.parse(note.createdAt.toString()))}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700])
+                ),
                 Text('Sửa: ${formatter.format(DateTime.parse(note.modifiedAt.toString()))}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700])),
-                // Thêm phần tag vào đây
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700])
+                ),
+
+                // Phần tag hiển thị ở dạng listview
                 Row(
                   children: [
                     Text("Tags: ", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -173,7 +189,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
     );
   }
 
-  // Hiển thị dạng lưới
+  // Hiển thị dạng lưới gridview
   Widget _buildGridView(List<Note> notes) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -188,7 +204,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
         return Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           elevation: 3,
-          color: _getPriorityColor(note.priority),
+          color: getPriorityColor(note.priority),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: () async {
@@ -224,7 +240,11 @@ class _NoteListScreenState extends State<NoteListScreen> {
                   ),
 
                   SizedBox(height: 8),
+                  Text(
+                    'Mức độ ưu tiên: ${getPriorityLabel(note.priority)}',
+                  ),
 
+                  SizedBox(height: 6),
                   // Ngày tạo và sửa
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +289,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit, size: 17.5, color: Colors.blueAccent),
+                        icon: Icon(Icons.edit_outlined, size: 17.5, color: Colors.blueAccent),
                         onPressed: () async {
                           final updated = await Navigator.push(
                             context,
@@ -279,7 +299,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, size: 17.5, color: Colors.redAccent),
+                        icon: Icon(Icons.delete_forever_rounded, size: 17.5, color: Colors.redAccent),
                         onPressed: () => _confirmDelete(note),
                       ),
                     ],
@@ -300,7 +320,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: Icon(Icons.edit, color: Colors.blue.shade500),
+          icon: Icon(Icons.edit_outlined, color: Colors.blue.shade500),
           onPressed: () async {
             final updated = await Navigator.push(
               context,
@@ -310,7 +330,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
           },
         ),
         IconButton(
-          icon: Icon(Icons.delete, color: Colors.red.shade800),
+          icon: Icon(Icons.delete_forever_rounded, color: Colors.red.shade800),
           onPressed: () => _confirmDelete(note),
         ),
       ],
@@ -339,17 +359,29 @@ class _NoteListScreenState extends State<NoteListScreen> {
     );
   }
 
-  // Đổi màu theo mức độ ưu tiên
-  Color _getPriorityColor(int priority) {
+    // Đổi màu theo mức độ ưu tiên
+  String getPriorityLabel(int priority) {
     switch (priority) {
       case 1:
-        return Colors.green.shade500;
+        return 'Cao';
       case 2:
-        return Colors.green.shade300;
+        return 'Trung bình';
       case 3:
-        return Colors.green.shade100;
+        return 'Thấp';
       default:
-        return Colors.grey.shade300;
+        return 'Không rõ';
+    }
+  }
+  Color getPriorityColor(int priority) {
+    switch (priority) {
+      case 1: // Cao
+        return Colors.teal.shade100;        // Xanh mint nhạt – nổi bật và hiện đại
+      case 2: // Trung bình
+        return Colors.amber.shade100;       // Vàng nhạt – nổi bật, dễ phân biệt
+      case 3: // Thấp
+        return Colors.grey.shade200;        // Xám nhạt – trung tính, nhẹ nhàng
+      default:
+        return Colors.white;                // Dự phòng cho các trường hợp khác
     }
   }
 }
